@@ -1,14 +1,16 @@
 #Libraries
 install.packages("spgwr")
-library(spgwr)
-library(spatstat)
-library(tmap)
-library(gstat)
-library(sf)
-library(raster)
-library(rgdal)
-library(e1071)
-library(spdep)
+library("spgwr")
+library("spatstat")
+library("tmap")
+library("gstat")
+library("sf")
+library("raster")
+library("rgdal")
+library("e1071")
+library("spdep")
+library("gtable")
+
 
 #Set working directory
 dir <- "/Users/Ivan/Documents/UVIC/T5/GEOG 418/Project"
@@ -18,6 +20,8 @@ setwd(dir)
 #Read in PM2.5 data:
 pm2.5 <- readOGR(dsn = "/Users/Ivan/Documents/UVIC/T5/GEOG 418/Project", layer = "Pm25Sample")
 pm2.5 <- spTransform(pm2.5, CRS("+init=epsg:26910"))
+#Select only ID and Income columns:
+colnames(pm2.5) <- c("DAUID", "PM25") 
 
 #Reading in dissemination tract and income data
 #Read in census income data:
@@ -40,10 +44,19 @@ map_Income <- tm_shape(income.tracts) +
   tm_polygons(col = "Income",
               title = "Median Income",
               style = "jenks",
-              palette = "viridis", n = 6) +
+              palette = "Greens", n = 10) +
   tm_legend(legend.position = c("LEFT", "BOTTOM"))
 
 map_Income
+
+map_TM <- tm_shape(income.tracts) + #make the main shape
+  tm_fill(col = "gray70") +  #fill polygons
+  tm_compass() +
+  tm_scale_bar() +
+  tm_layout(title = "Metro Vancouver", title.position = c("LEFT", "TOP"))
+map_TM
+
+tmaptools::palette_explorer()
 
 #Create a grid called grd to use in your interpolation
 # Create an empty grid where n is the total number of cells
@@ -56,3 +69,6 @@ gridded(grd)     <- TRUE
 fullgrid(grd)    <- TRUE  
 #Reproject the grid:
 proj4string(grd) <- proj4string(income.tracts)
+
+
+
